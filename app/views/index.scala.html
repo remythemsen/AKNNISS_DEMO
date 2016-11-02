@@ -1,7 +1,9 @@
-@(list: List[String])
+@(list: List[(String, Vector[Float])])
 
 <ul>
 @for(item <- list) {
-  <li>@item</li>
+  <a href="http://localhost:9000/query/@item._1">
+      <img src="http://disa.fi.muni.cz/profimedia/images/@item._1"/>
+  </a>
 }
 </ul>
