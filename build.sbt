@@ -10,4 +10,10 @@ libraryDependencies ++= Seq( jdbc , cache , ws   , specs2 % Test )
 
 unmanagedResourceDirectories in Test <+=  baseDirectory ( _ /"target/web/public/test" )  
 
-resolvers += "scalaz-bintray" at "https://dl.bintray.com/scalaz/releases"  
+resolvers += "scalaz-bintray" at "https://dl.bintray.com/scalaz/releases"
+
+libraryDependencies ++= Seq(
+  "org.scalanlp" %% "breeze" % "0.12",
+  "org.scalanlp" %% "breeze-natives" % "0.12",
+  "org.scalanlp" %% "breeze-viz" % "0.12"
+)

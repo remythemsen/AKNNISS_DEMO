@@ -4,8 +4,8 @@ import java.io.{File, FileInputStream, ObjectInputStream}
 
 import LSH.hashFunctions.Hyperplane
 import LSH.structures.LSHStructure
-import LSH.tools.Cosine
-import model.IO.Parser
+import tools.Cosine
+import IO.Parser
 
 import scala.collection.mutable.ArrayBuffer
 
