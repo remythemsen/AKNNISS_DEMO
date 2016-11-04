@@ -1,51 +1,16 @@
 package LSH.hashFunctions
 
-import java.util.Random
-
+import scala.util.Random
 import tools.Distance
-
 import scala.collection.mutable.ArrayBuffer
+import scala.util.Random
 
 /**
   * Created by Chris on 9/26/16.
   */
 
-class CrossPolytope(k:Int) extends HashFunction(k) {
-
-  def isSparse(x: Vector[Double]): Boolean = {
-    //return true if sparse, otherwise false
-    val m=x.size;
-    var count=0
-    for(i<-0 until x.size){
-      if(count >= m/2) false
-      if (x(i)!=0) count+=1
-    }
-    true
-  }
-
-  def featureHashing(x: Vector[Double]): Vector[Double]  = {
-    // for sparse vector x, return x'
-    // apply a linear map x ⟶ Sx
-    val d=x.size
-    val dPrime=d/2
-    //val dPrime=(log(d)/log(2)).toInt
-    val S = generateRandomSparseMatrixS(x.size, dPrime, System.currentTimeMillis())
-    val newX: Vector[Double] = MatrixVectorProduct(S,x)
-
-    newX
-  }
-
-  def generateRandomSparseMatrixS(oldD: Int, newD: Int, seed: Long): Array[Array[Double]] = {
-    // S - random sparse d x d’ matrix, whose columns have one non-zero, ±1 entry sampled uniformly)
-    val rand = new Random(System.currentTimeMillis())
-    val matrixS = Array.ofDim[Double](newD, oldD)
-
-    for(i<-0 until oldD){
-      val j = rand.nextInt(newD)
-      matrixS(j)(i)=(if (rand.nextBoolean() == 0) -1 else 1)
-    }
-    matrixS
-  }
+class CrossPolytope(k: Int, rndf:() => Random) extends HashFunction(k, rndf) {
+  val rnd = rndf()
 
   def generateRandomDiagonalMatrixD(size: Int, seed: Long): Array[Array[Double]] = {
     // D - random diagonal {±1} matrix (used for “flipping signs”)
@@ -62,23 +27,20 @@ class CrossPolytope(k:Int) extends HashFunction(k) {
   }
 
 
-  def generateHadamard (x:Int,mat:Array[Array[Double]]):Unit=
-  {
-    generateHadamard(mat, 0,0,mat.length, 1.0); //overloading, assuming mat.length is pow of 2
-  }
-  def generateHadamard (mat:Array[Array[Double]], top:Int, left:Int, size:Int, sign:Double): Unit=
-  {
-    if (size == 1.0)
-      mat(top)(left) = sign;
-    else
-    {
-      generateHadamard (mat, top, left, size/2, sign);
-      generateHadamard (mat, top+size/2, left, size/2, sign);
-      generateHadamard (mat, top, left+size/2, size/2, sign);
-      generateHadamard (mat, top+size/2, left+size/2, size/2, (-1)*sign);
-    }
+  def generateHadamard (x:Int,mat:Array[Array[Double]]):Unit= {
+    generateHadamard(mat, 0, 0, mat.length, 1.0); //overloading, assuming mat.length is pow of 2
   }
 
+  def generateHadamard (mat:Array[Array[Double]], top:Int, left:Int, size:Int, sign:Double): Unit= {
+    if (size == 1.0)
+      mat(top)(left) = sign
+    else {
+      generateHadamard (mat, top, left, size/2, sign)
+      generateHadamard (mat, top+size/2, left, size/2, sign)
+      generateHadamard (mat, top, left+size/2, size/2, sign)
+      generateHadamard (mat, top+size/2, left+size/2, size/2, (-1)*sign)
+    }
+  }
 
   def MatrixVectorProduct(A:Array[Array[Double]],x:Vector[Double]):Vector[Double]={
     //A*xw
@@ -107,25 +69,25 @@ class CrossPolytope(k:Int) extends HashFunction(k) {
       indexOfMax = i
     }
 
-    if(max > 0)  2*indexOfMax -1
-    else  2*indexOfMax - 2
+    if(max > 0) 2*indexOfMax -1
+    else 2*indexOfMax - 2
   }
 
-  def pseudoRandomRotation(x:Vector[Double]): Vector[Double] ={
-    val D1 = generateRandomDiagonalMatrixD(x.size, System.currentTimeMillis())
-    val D2 = generateRandomDiagonalMatrixD(x.size, System.currentTimeMillis())
-    val D3 = generateRandomDiagonalMatrixD(x.size, System.currentTimeMillis())
+  // TODO: remove hardcoded value
+  val D1 = generateRandomDiagonalMatrixD(220, rnd.nextLong())
+  val D2 = generateRandomDiagonalMatrixD(220, rnd.nextLong())
+  val D3 = generateRandomDiagonalMatrixD(220, rnd.nextLong())
 
-    val H  =Array.ofDim[Double](x.size,x.size)
-    generateHadamard(x.size, H)
+  val H = Array.ofDim[Double](220, 220)
+  generateHadamard(220, H)
 
-    val y = MatrixVectorProduct(H,MatrixVectorProduct(D3,MatrixVectorProduct(H,MatrixVectorProduct(D2,MatrixVectorProduct(H,MatrixVectorProduct(D1,x))))))
-    y
+  def pseudoRandomRotation(x: Vector[Double]): Vector[Double] ={
+    MatrixVectorProduct(H,MatrixVectorProduct(D3,MatrixVectorProduct(H,MatrixVectorProduct(D2,MatrixVectorProduct(H,MatrixVectorProduct(D1,x))))))
   }
-
 
   def apply(x: Vector[Double]): String = {
     computeHash(x).toString
   }
+
 
 }
