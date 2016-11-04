@@ -4,11 +4,10 @@ import java.io.File
 
 import IO.Parser
 import LSH.hashFunctions.HashFunction
-import breeze.linalg.DenseMatrix
-import preProcessing.DimensionalityReducer
 import tools.Distance
 
 import scala.collection.mutable.ArrayBuffer
+import scala.util.Random
 
 /**
   * Structure of hashtables meant for querying k near neighbors of v
@@ -32,7 +31,7 @@ class LSHStructure(file:File, hf:() => HashFunction, L:Int) extends Serializable
   // TODO Each actor creates a table
 
   for(i <- 0 until L) {
-    var data = new Parser(file)
+    val data = new Parser(file)
     val outI = i+1
     println(data.size)
     println(data.vLength)
@@ -49,7 +48,6 @@ class LSHStructure(file:File, hf:() => HashFunction, L:Int) extends Serializable
       print(s"$outI out of $L is ")
       print(((j / size) * 100).toString.substring(0, 3))
       println("% done")
-
 
       table+=(data.next)
     }
@@ -75,10 +73,11 @@ class LSHStructure(file:File, hf:() => HashFunction, L:Int) extends Serializable
 
     result.distinct.filter(x => dist.measure(x._2, v._2) < r)
   }
-  def findVectorById(id:String): Unit = {
+  def findVectorById(id:String) = {
     val fVector = this.map.find {
       case (x) => x._1.equals(id)
     }
+    fVector
   }
 }
 

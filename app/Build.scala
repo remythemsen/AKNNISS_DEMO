@@ -1,8 +1,11 @@
 package main
 import java.io.{File, FileOutputStream, ObjectOutputStream}
+
 import IO.Parser
 import LSH.hashFunctions._
 import LSH.structures.LSHStructure
+
+import scala.util.Random
 
 /**
   * Created by remeeh on 9/26/16.
@@ -38,11 +41,14 @@ object Build {
     // parser.parse returns Option[C]
     parser.parse(args, ConfigBuild()) match {
       case Some(config) =>
+        val seed:Long = System.currentTimeMillis()
+        val rnd:Random = new Random(seed)
+
         val hashFC:() => HashFunction = {
           if (config.hashFunction.equals("Hyperplane"))
-            () => new Hyperplane(config.functions)
+            () => new Hyperplane(config.functions, () => new Random(rnd.nextLong()))
           else if (config.hashFunction.equals("Crosspolytope"))
-            () => new CrossPolytope(config.functions)
+            () => new CrossPolytope(config.functions, () => new Random(rnd.nextLong()))
           else {
             throw new Exception("Unknown Hash Function")
           }

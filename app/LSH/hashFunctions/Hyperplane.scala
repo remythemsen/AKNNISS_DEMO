@@ -8,14 +8,14 @@ import scala.util.Random
 /**
   * Created by remeeh on 9/26/16.
   */
-class Hyperplane(k:Int) extends HashFunction(k) {
+class Hyperplane(k:Int, rndf:() => Random) extends HashFunction(k, rndf) {
+  val rnd = rndf()
 
   var hyperPlanes = new ArrayBuffer[Vector[Double]]
-  val rnd = new Random(System.currentTimeMillis())
 
   // Initialize k random hyperplanes for H[i]
   for(m <- 0 until k) {
-    hyperPlanes += generateRandomV(4096)
+    hyperPlanes += generateRandomV(225)
   }
 
   def apply(v: Vector[Double]): String = {
@@ -34,7 +34,7 @@ class Hyperplane(k:Int) extends HashFunction(k) {
   def generateRandomV(size: Int): Vector[Double] = {
     val buf = new ArrayBuffer[Double]
     for (i <- 0 until size)
-      buf += (if (rnd.nextGaussian() < 0) -1 else 1)
+      buf += (if (rnd.nextBoolean()) -1 else 1)
 
     buf.toVector
   }

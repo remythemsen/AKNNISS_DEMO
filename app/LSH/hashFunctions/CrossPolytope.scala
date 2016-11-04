@@ -1,16 +1,15 @@
 package LSH.hashFunctions
 
-import java.util.Random
-
+import scala.util.Random
 import tools.Distance
-
 import scala.collection.mutable.ArrayBuffer
 
 /**
   * Created by Chris on 9/26/16.
   */
 
-class CrossPolytope(k:Int) extends HashFunction(k) {
+class CrossPolytope(k:Int, rndf:() => Random) extends HashFunction(k, rndf) {
+  val rnd = rndf()
 
   var cps=new ArrayBuffer[Vector[Double]]
 
