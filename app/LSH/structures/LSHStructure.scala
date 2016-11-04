@@ -23,7 +23,6 @@ class LSHStructure(file:File, hf:() => HashFunction, L:Int) extends Serializable
 
   // Set of Hash maps generated and populated by an LSH algorithm
   var hashTables:ArrayBuffer[HashTable] = ArrayBuffer.empty
-  val A:DenseMatrix[Double]= DimensionalityReducer.getRandMatrix(500,4096);
 
   /** [Constructor]
     * Builds the Structure by populating the L hash tables
@@ -52,33 +51,34 @@ class LSHStructure(file:File, hf:() => HashFunction, L:Int) extends Serializable
       println("% done")
 
 
-      var elem = data.next
-      val reduced = (elem._1, DimensionalityReducer.getNewVector(elem._2, A))
-      table+=(reduced)
+      table+=(data.next)
     }
     hashTables+=table
   }
+
+  val map = this.hashTables(0).table.valuesIterator.flatMap(x => x)
 
   /**
     * Takes a query vector and finds k near neighbours in the LSH Structure
     *
     * @param v Query vector
-    * @param k Amount of neighbours
     * @param r Accepting neighbours within range
     * @return set of k near neighbours
     */
 
-  def query(v:(String, Vector[Double]), k:Int, r:Double, dist:Distance) : ArrayBuffer[(String, Vector[Double])] = {
+  def query(v:(String, Vector[Double]), r:Double, dist:Distance) : ArrayBuffer[(String, Vector[Double])] = {
     val data = new Parser(file)
     val result = for {
       h <- hashTables
-      // TODO Move dimensionality reduction outside of query
       r <- h.query(v._2)
     } yield r
 
-    val som = result.distinct.filter(x => dist.measure(x._2, v._2) < r).take(k)
-
-    result.distinct.filter(x => dist.measure(x._2, v._2) < r).take(k)
+    result.distinct.filter(x => dist.measure(x._2, v._2) < r)
+  }
+  def findVectorById(id:String): Unit = {
+    val fVector = this.map.find {
+      case (x) => x._1.equals(id)
+    }
   }
 }
 
