@@ -43,7 +43,7 @@ object DimensionalityReducer{
       for(j<-0 until x.size){
        b+=A(i,j)
       }
-       buffer+=Distance.dotProduct(b.toVector,x)
+       buffer+=Distance.ddotProduct(b.toVector,x)
     }
     // return the new vector with reduced dimensions
     buffer.toVector

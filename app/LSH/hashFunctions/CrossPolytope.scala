@@ -1,6 +1,5 @@
 package LSH.hashFunctions
 
-import scala.util.Random
 import tools.Distance
 import scala.collection.mutable.ArrayBuffer
 import scala.util.Random
@@ -12,11 +11,11 @@ import scala.util.Random
 class CrossPolytope(k: Int, rndf:() => Random) extends HashFunction(k, rndf) {
   val rnd = rndf()
 
-  def generateRandomDiagonalMatrixD(size: Int, seed: Long): Array[Array[Double]] = {
+  def generateRandomDiagonalMatrixD(size: Int, seed: Long): Array[Array[Float]] = {
     // D - random diagonal {±1} matrix (used for “flipping signs”)
     val rnd = new Random(seed)
     //Generate Diagonal matrix with {±1}
-    val matrixD = Array.ofDim[Double](size, size)
+    val matrixD = Array.ofDim[Float](size, size)
     for(i<-0 until size){
       for(j<-0 until size){
         if(i==j){matrixD(i)(j)=(if (rnd.nextBoolean() == 0) -1 else 1)}
@@ -27,11 +26,11 @@ class CrossPolytope(k: Int, rndf:() => Random) extends HashFunction(k, rndf) {
   }
 
 
-  def generateHadamard (x:Int,mat:Array[Array[Double]]):Unit= {
-    generateHadamard(mat, 0, 0, mat.length, 1.0); //overloading, assuming mat.length is pow of 2
+  def generateHadamard (x:Int,mat:Array[Array[Float]]):Unit= {
+    generateHadamard(mat, 0, 0, mat.length, 1.0.toFloat); //overloading, assuming mat.length is pow of 2
   }
 
-  def generateHadamard (mat:Array[Array[Double]], top:Int, left:Int, size:Int, sign:Double): Unit= {
+  def generateHadamard (mat:Array[Array[Float]], top:Int, left:Int, size:Int, sign:Float): Unit= {
     if (size == 1.0)
       mat(top)(left) = sign
     else {
@@ -42,12 +41,13 @@ class CrossPolytope(k: Int, rndf:() => Random) extends HashFunction(k, rndf) {
     }
   }
 
-  def MatrixVectorProduct(A:Array[Array[Double]],x:Vector[Double]):Vector[Double]={
+  def MatrixVectorProduct(A:Array[Array[Float]],x:Vector[Float]):Vector[Float]={
+    // TODO Chris & Rox, please double check the double to float conversion here
     //A*xw
-    val buffer= new ArrayBuffer[Double]
+    val buffer= new ArrayBuffer[Float]
 
     for(i<-0 until A.size){
-      val b = new ArrayBuffer[Double]
+      val b = new ArrayBuffer[Float]
       for(j<-0 until x.size){
         b+=A(i)(j)
       }
@@ -58,7 +58,7 @@ class CrossPolytope(k: Int, rndf:() => Random) extends HashFunction(k, rndf) {
   }
 
   // compute pseudorandom rotation: Fast Hadamard Transform
-  def computeHash(x: Vector[Double]): Int = {
+  def computeHash(x: Vector[Float]): Int = {
     // y = HD1HD2HD3x // matrix multiplication
     val y = pseudoRandomRotation(x)
 
@@ -78,16 +78,15 @@ class CrossPolytope(k: Int, rndf:() => Random) extends HashFunction(k, rndf) {
   val D2 = generateRandomDiagonalMatrixD(220, rnd.nextLong())
   val D3 = generateRandomDiagonalMatrixD(220, rnd.nextLong())
 
-  val H = Array.ofDim[Double](220, 220)
+  val H = Array.ofDim[Float](220, 220)
   generateHadamard(220, H)
 
-  def pseudoRandomRotation(x: Vector[Double]): Vector[Double] ={
+  def pseudoRandomRotation(x: Vector[Float]): Vector[Float] ={
     MatrixVectorProduct(H,MatrixVectorProduct(D3,MatrixVectorProduct(H,MatrixVectorProduct(D2,MatrixVectorProduct(H,MatrixVectorProduct(D1,x))))))
   }
 
-  def apply(x: Vector[Double]): String = {
+  def apply(x: Vector[Float]): String = {
     computeHash(x).toString
   }
-
 
 }
