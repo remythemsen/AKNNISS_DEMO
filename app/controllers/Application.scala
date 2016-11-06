@@ -8,7 +8,7 @@ class Application extends Controller {
 
   // Initial Index Page
   def index = Action {
-    val initQs = Query.lshs.hashTables(0).table.values.flatten.take(25).toList
+    val initQs = Query.lshs.lookupMap.take(30).toList
     Ok(views.html.index(initQs))
   }
 

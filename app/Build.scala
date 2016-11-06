@@ -55,7 +55,8 @@ object Build {
         }
 
         // Building the structure
-        val lshStructure = new LSHStructure(config.data, hashFC, config.tables)
+/*
+//        val lshStructure = new LSHStructure(config.data, hashFC, config.tables)
 
         // Save LSHStructure to file.
         val dir:String = config.outDir.concat("/")
@@ -71,6 +72,7 @@ object Build {
         val oos = new ObjectOutputStream(fis)
         oos.writeObject(lshStructure)
         oos.close
+*/
 
 
       case None =>
