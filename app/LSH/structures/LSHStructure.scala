@@ -1,7 +1,6 @@
 package LSH.structures
 
 import tools.Distance
-import scala.collection.mutable.ArrayBuffer
 
 /**
   * Structure of hashtables meant for querying k near neighbors of v
@@ -12,11 +11,11 @@ class LSHStructure(hts:IndexedSeq[HashTable]) extends Serializable {
   val hashTables = hts
 
   // Building lookup map
-  val items = this.hashTables.head.table.valuesIterator.flatten.toList
+  private val items = this.hashTables.head.table.valuesIterator.flatten.toList
   val lookupMap = Map(items map { s => (s._1, s._2)} : _*)
 
   /**
-    * Takes a query vector and finds k near neighbours in the LSH Structure
+    * Takes a query vector and finds neighbours withing range in the LSH Structure
     *
     * @param v Query vector
     * @param r Accepting neighbours within range

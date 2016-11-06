@@ -18,7 +18,7 @@ object Distance {
   def ddotProduct(x: Vector[Double], y: Vector[Double]): Double = {
     (x zip y).map { case (x, y) => (y * x) }.sum
   }
-  def dotProduct(x: Vector[Float], y: Vector[Float]): Float = {
+  def dotProduct(x: IndexedSeq[Float], y: IndexedSeq[Float]): Float = {
     (x zip y).map { case (x, y) => (y * x) }.sum
   }
   def normalize(x:Vector[Float]):Vector[Float]={

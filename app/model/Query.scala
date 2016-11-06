@@ -27,10 +27,11 @@ object Query {
 
   // new Build method
   val lshs = new LSHStructure(for {
-    i <- 0 until 6
+    i <- 0 until 4
     parser <- List(new Parser(new File("data/descriptors-decaf-random-sample-reduced-20000000.data")))
+    //parser <- List(new Parser(new File("data/descriptors-mini-reduced.data")))
     table <- {
-      val t = new HashTable(() => new Hyperplane(14, () => new Random(rnd.nextLong())))
+      val t = new HashTable(() => new Hyperplane(10, () => new Random(rnd.nextLong())))
       for (j <- 0 until parser.size) {
         t += parser.next
       }

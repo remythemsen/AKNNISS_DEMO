@@ -10,6 +10,7 @@ import scala.collection.mutable
 class HashTable(f:() => HashFunction) extends Serializable {
   // internal Mutable HashMap
   val table = new mutable.HashMap[String, List[(String, Vector[Float])]]()
+
   // internal Hash function
   val hf = f()
 
@@ -30,9 +31,9 @@ class HashTable(f:() => HashFunction) extends Serializable {
     * @param v a query point
     * @return a list of vectors with same key as v
     */
-  def query(v:Vector[Float]) : Stream[(String, Vector[Float])] = {
+  def query(v:Vector[Float]) : List[(String, Vector[Float])] = {
     val key = hf(v)
-    table(key).toStream
+    table(key)
   }
 
 }
