@@ -2,7 +2,7 @@ package model
 
 import java.io.{File, FileInputStream, ObjectInputStream}
 
-import LSH.hashFunctions.{CrossPolytope, Hyperplane}
+import LSH.hashFunctions.{CrossPolytope, Exhaustive, Hyperplane}
 import LSH.structures.{HashTable, LSHStructure}
 import tools.Cosine
 import IO.Parser
@@ -31,7 +31,7 @@ object Query {
     parser <- List(new Parser(new File("data/descriptors-decaf-random-sample-reduced-20000000.data")))
     //parser <- List(new Parser(new File("data/descriptors-mini-reduced.data")))
     table <- {
-      val t = new HashTable(() => new Hyperplane(10, () => new Random(rnd.nextLong())))
+      val t = new HashTable(() => new Exhaustive(10, () => new Random(rnd.nextLong())))
       for (j <- 0 until parser.size) {
         t += parser.next
       }
