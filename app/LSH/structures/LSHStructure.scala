@@ -54,8 +54,10 @@ class LSHStructure(file:File, hf:() => HashFunction, L:Int) extends Serializable
     hashTables+=table
   }
 
-  val map = this.hashTables(0).table.valuesIterator.flatMap(x => x)
-
+  // TODO Optimize this
+  val items = this.hashTables(0).table.valuesIterator.flatten.toList
+  val lookupMap = Map(items map { s => (s._1, s._2)} : _*)
+  println("map is done!")
   /**
     * Takes a query vector and finds k near neighbours in the LSH Structure
     *
@@ -74,10 +76,7 @@ class LSHStructure(file:File, hf:() => HashFunction, L:Int) extends Serializable
     result.distinct.filter(x => dist.measure(x._2, v._2) < r)
   }
   def findVectorById(id:String) = {
-    val fVector = this.map.find {
-      case (x) => x._1.equals(id)
-    }
-    fVector
+    (id, lookupMap.get(id).head)
   }
 }
 

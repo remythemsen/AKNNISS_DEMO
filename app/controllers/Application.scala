@@ -8,24 +8,14 @@ class Application extends Controller {
 
   // Initial Index Page
   def index = Action {
-    val initQs = Query.lshs.hashTables(0).table.iterator.take(25).map(x => ((x._2.map(z => (z, 0.0)))))
-    Ok(views.html.index(initQs.next, "unknown"))
+    val initQs = Query.lshs.hashTables(0).table.values.flatten.take(25).toList
+    Ok(views.html.index(initQs))
   }
 
   // Query Request
   def query(pictureId:String) = Action {
-
-    val tres = time {
-      Query.getResults(pictureId, 2.0, 30)
-    }
-    Ok(views.html.index(tres._1, tres._2))
-  }
-
-  def time[R](block: => R) = {
-    val t0 = System.currentTimeMillis()
-    val result = block    // call-by-name
-    val t1 = System.currentTimeMillis()
-    (result, ((t1 - t0) + "ms"))
+    val res = Query.getResults(pictureId, 0.7)
+    Ok(views.html.query(res._2, res._1, res._2.length))
   }
 
 }
