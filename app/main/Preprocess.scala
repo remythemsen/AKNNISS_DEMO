@@ -20,9 +20,6 @@ object Preprocess {
         action( (x, c) => c.copy(outDir = x) ).
         text("dir to store preprocessed file")
 
-      opt[Int]('n', "size").action( (x, c) =>
-        c.copy(n = x) ).text("number of tuples in data file")
-
       opt[Int]('v', "vlength").action( (x, c) =>
         c.copy(vlength = x) ).text("number of components in each vector\n")
 
@@ -50,7 +47,9 @@ object Preprocess {
         val input2 = Source.fromFile(config.data.getAbsoluteFile).getLines()
 
         var j = 0.0
-        val size = config.n.toDouble
+        val size = Source.fromFile(config.data.getAbsolutePath).getLines().length/2
+        println(size)
+
 
         // TODO This can be made much faster using buffer
         Iterator
@@ -76,6 +75,7 @@ object Preprocess {
             println((((j/2) / size) * 100).toString.substring(0, 3)+"%")
             output.write(x + "\n")
           })
+        println("Finished with "+size+" tuples")
 
       case None =>
         // arguments are bad, error message will have been displayed
@@ -83,4 +83,4 @@ object Preprocess {
     }
   }
 }
-case class ConfigPreprocessing(data: File = new File("."), outDir: String = ".", n:Int = 0, vlength:Int = 4096)
+case class ConfigPreprocessing(data: File = new File("."), outDir: String = ".", vlength:Int = 4096)
