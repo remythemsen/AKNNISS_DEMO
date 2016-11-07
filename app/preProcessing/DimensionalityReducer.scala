@@ -6,9 +6,6 @@ import tools.Distance
 import scala.collection.mutable.ArrayBuffer
 import scala.math.{pow, sqrt}
 
-/**
-  * Created by remeeh on 10/2/16.
-  */
 object DimensionalityReducer{
   // Principal Component Analysis
   def getNewVector(x:Vector[Double],A: DenseMatrix[Double]):Vector[Double] = {
@@ -27,7 +24,7 @@ object DimensionalityReducer{
     val base2 = scala.math.log(2) // natural log of 2
     val log2N = scala.math.log(n) / base2
     // m = new reduced dimension
-    val m=((9*epsilon*log2N).toInt) + 1
+    val m=((9*epsilon*log2N).toInt) + 2
 
     val A = DenseMatrix.rand(m, d, breeze.stats.distributions.Gaussian(0, 1))
     val M=normalizeMatrix(A)
@@ -43,7 +40,7 @@ object DimensionalityReducer{
       for(j<-0 until x.size){
        b+=A(i,j)
       }
-       buffer+=Distance.dotProduct(b.toVector,x)
+       buffer+=Distance.ddotProduct(b.toVector,x)
     }
     // return the new vector with reduced dimensions
     buffer.toVector

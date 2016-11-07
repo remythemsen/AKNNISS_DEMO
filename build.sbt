@@ -18,7 +18,8 @@ libraryDependencies ++= Seq(
   "org.scalanlp" %% "breeze-viz" % "0.12",
   "org.scalactic" %% "scalactic" % "3.0.0",
   "org.scalatest" %% "scalatest" % "3.0.0" % "test",
-  "com.github.scopt" %% "scopt" % "3.5.0"
+  "com.github.scopt" %% "scopt" % "3.5.0",
+  "org.scala-lang.modules" %% "scala-pickling" % "0.10.1"
 )
 
 
