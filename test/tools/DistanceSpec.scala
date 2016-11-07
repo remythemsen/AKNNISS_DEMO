@@ -21,10 +21,10 @@ class DistanceSpec extends FlatSpec with Matchers {
   "Cosine Measure" should "not measure higher than 1.0" in {
     val rnd = new Random(System.currentTimeMillis())
 
+    // TODO try to fill vector with +- not only positives
     for(i <- 0 until 10000) {
       val v1 = IndexedSeq.fill(220)(rnd.nextFloat() * 12000 - 6000)
       val v2 = IndexedSeq.fill(220)(rnd.nextFloat * 12000 - 6000)
-      println(Cosine.measure(v1,v2))
       (Cosine.measure(v1,v2) <= 1.0) should be (true)
     }
   }

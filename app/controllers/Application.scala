@@ -13,7 +13,7 @@ class Application extends Controller {
 
   // Query Request
   def query(pictureId:String) = Action {
-    val res = Query.getResults(pictureId,1000.0f)
+    val res = Query.getResults(pictureId,1.0f)
     Ok(views.html.query(res._2, res._1, res._2.length))
   }
 

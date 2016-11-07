@@ -1,13 +1,6 @@
 package tools
 
-import breeze.linalg.zipValues
-
 import scala.math.{abs, pow, sqrt}
-
-/**
-  * Created by remeeh on 10/10/16.
-  * Measures developed by chris matrakou
-  */
 
 trait Distance {
   def measure(x:IndexedSeq[Float], y:IndexedSeq[Float]) : Float

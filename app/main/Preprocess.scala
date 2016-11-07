@@ -55,7 +55,7 @@ object Preprocess {
         // TODO This can be made much faster using buffer
         Iterator
           .continually (input2.next())
-          .takeWhile (_ => input2.hasNext)
+          .takeWhile (_ => input2.nonEmpty)
           .map(x => {
             // case id line
             if(x.startsWith("#")) x
