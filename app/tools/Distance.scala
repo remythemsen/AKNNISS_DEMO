@@ -8,11 +8,11 @@ import scala.math.{abs, pow, sqrt}
   */
 
 trait Distance {
-  def measure(x:Vector[Float], y:Vector[Float]) : Double
+  def measure(x:IndexedSeq[Float], y:IndexedSeq[Float]) : Double
 }
 
 object Distance {
-  def magnitude(x: Vector[Float]): Double = {
+  def magnitude(x: IndexedSeq[Float]): Double = {
     sqrt((x).map { case (x) => pow(x, 2) }.sum)
   }
   def ddotProduct(x: Vector[Double], y: Vector[Double]): Double = {
@@ -28,32 +28,32 @@ object Distance {
 }
 
 case object Cosine extends Distance {
-  def measure(x:Vector[Float], y:Vector[Float]) : Double = {
+  def measure(x:IndexedSeq[Float], y:IndexedSeq[Float]) : Double = {
     1-((Distance.dotProduct(x, y)) / (Distance.magnitude(x) * Distance.magnitude(y)))
   }
 }
 
 case object Euclidean extends Distance {
-  def measure(x:Vector[Float], y:Vector[Float]) : Double = {
+  def measure(x:IndexedSeq[Float], y:IndexedSeq[Float]) : Double = {
     sqrt((x zip y).map { case (x, y) => pow(y - x, 2) }.sum)
   }
 }
 
 case object Manhattan extends Distance {
-  def measure(x:Vector[Float], y:Vector[Float]) : Double = {
+  def measure(x:IndexedSeq[Float], y:IndexedSeq[Float]) : Double = {
     (x zip y).map { case (x, y) => abs(y - x) }.sum
   }
 
 }
 
 case object LInfinityNorm extends Distance {
-  def measure(x:Vector[Float], y:Vector[Float]) : Double = {
+  def measure(x:IndexedSeq[Float], y:IndexedSeq[Float]) : Double = {
     (x zip y).map { case (x, y) => abs(y - x) }.max
   }
 }
 
 case object Hamming extends Distance {
-  def measure(x:Vector[Float], y:Vector[Float]) : Double = {
+  def measure(x:IndexedSeq[Float], y:IndexedSeq[Float]) : Double = {
     (x zip y).count { case (x, y) => (y != x) }
   }
 }

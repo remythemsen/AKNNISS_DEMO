@@ -9,7 +9,7 @@ import scala.collection.mutable
 @SerialVersionUID(100L)
 class HashTable(f:() => HashFunction) extends Serializable {
   // internal Mutable HashMap
-  val table = new mutable.HashMap[String, List[(String, Vector[Float])]]()
+  val table = new mutable.HashMap[String, List[(String, IndexedSeq[Float])]]()
 
   // internal Hash function
   val hf = f()
@@ -18,7 +18,7 @@ class HashTable(f:() => HashFunction) extends Serializable {
     * Insert vector
     * @param v vector to be inserted into internal hashmap
     */
-  def +=(v:(String, Vector[Float])) : Unit = {
+  def +=(v:(String, IndexedSeq[Float])) : Unit = {
     val key = hf(v._2)
     val value = {
       if(table.contains(key)) table(key)++List(v)
@@ -31,7 +31,7 @@ class HashTable(f:() => HashFunction) extends Serializable {
     * @param v a query point
     * @return a list of vectors with same key as v
     */
-  def query(v:Vector[Float]) : List[(String, Vector[Float])] = {
+  def query(v:IndexedSeq[Float]) : List[(String, IndexedSeq[Float])] = {
     val key = hf(v)
     table(key)
   }

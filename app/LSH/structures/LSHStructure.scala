@@ -22,7 +22,7 @@ class LSHStructure(hts:IndexedSeq[HashTable]) extends Serializable {
     * @return set of k near neighbours
     */
 
-  def query(v:(String, Vector[Float]), r:Double, dist:Distance) : IndexedSeq[(String, Vector[Float])] = {
+  def query(v:(String, IndexedSeq[Float]), r:Double, dist:Distance) : IndexedSeq[(String, IndexedSeq[Float])] = {
     val result = for {
       h <- hashTables
       r <- h.query(v._2)
@@ -31,7 +31,7 @@ class LSHStructure(hts:IndexedSeq[HashTable]) extends Serializable {
     result.distinct.filter(x => dist.measure(x._2, v._2) < r)
   }
 
-  def findVectorById(id:String) = {
+  def findVectorById(id:String):(String, IndexedSeq[Float]) = {
     (id, lookupMap.get(id).head)
   }
 }

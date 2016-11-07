@@ -5,7 +5,7 @@ import scala.util.Random
 class Exhaustive(k:Int, rndf:() => Random) extends HashFunction(k, rndf) {
   val rnd = rndf()
 
-  def apply(v:Vector[Float]) = {
+  def apply(v:IndexedSeq[Float]) = {
     "1"
   }
 }

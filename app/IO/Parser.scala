@@ -6,7 +6,7 @@ import scala.io.Source
 /**
   * Parses a FILE of format:
   * ##############################(x49)Id
-  * 0.1, 0.2, 3.0(x4096)
+  * 0.1, 0.2, 3.0(x220)
   *
   * @param data a file of the above format
   * @return Parser instance with iterable capabilities parsing data as requested
@@ -30,9 +30,9 @@ class Parser(data:File) extends Serializable  {
 
   def hasNext : Boolean = iterator.hasNext
 
-  def next : (String, Vector[Float]) = {
+  def next : (String, IndexedSeq[Float]) = {
     val set = iterator.take(2).toList
-    (set(0).toString.substring(49), set(1).toString.split(" ").map(x=>x.toFloat).toVector)
+    (set(0).toString.substring(49), set(1).toString .split(" ").map(x=>x.toFloat))
   }
 }
 

@@ -13,7 +13,7 @@ class Hyperplane(k:Int, rndf:() => Random) extends HashFunction(k, rndf) {
     hp <- List(generateRandomV(220))
   } yield hp
 
-  def apply(v:Vector[Float]) = {
+  def apply(v:IndexedSeq[Float]) = {
     val res = for {
       hp <- hyperPlanes
       r <- List(hash(v,hp))

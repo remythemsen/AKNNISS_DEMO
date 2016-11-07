@@ -7,6 +7,6 @@ import scala.util.Random
   */
 @SerialVersionUID(100L)
 abstract class HashFunction(k:Int, rnd:() => Random) extends Serializable {
-  def apply(v:Vector[Float]) : String
+  def apply(v:IndexedSeq[Float]) : String
 }
 
