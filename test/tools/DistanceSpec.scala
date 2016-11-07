@@ -1,7 +1,8 @@
 package tools
 
-import scala.util.Random
+import breeze.linalg.functions.cosineDistance
 
+import scala.util.Random
 import org.scalatest._
 
 /**
@@ -10,19 +11,21 @@ import org.scalatest._
 class DistanceSpec extends FlatSpec with Matchers {
   "Cosine Measure" should "have cosine distance of 0 when comparing two identical vectors" in {
     val rnd = new Random(System.currentTimeMillis())
-    val v1:IndexedSeq[Float] = IndexedSeq.fill(4096)(rnd.nextFloat)
-    val v2 = v1
-
-    Cosine.measure(v1, v2) should be (0.0)
+    for(i <- 0 until 100) {
+      var v1: IndexedSeq[Float] = IndexedSeq.fill(4096)(rnd.nextFloat * 2 - 1)
+      var v2 = v1
+      Cosine.measure(v1, v2) should be (0.0)
+    }
   }
 
-  "Cosine Measure" should "measure higher than 1.0" in {
+  "Cosine Measure" should "not measure higher than 1.0" in {
     val rnd = new Random(System.currentTimeMillis())
 
-    for(i <- 0 until 100) {
-      val v1 = IndexedSeq.fill(220)(rnd.nextFloat)
-      val v2 = IndexedSeq.fill(220)(rnd.nextFloat)
-      (Cosine.measure(v1,v2) <= 1.000000) should be (true)
+    for(i <- 0 until 10000) {
+      val v1 = IndexedSeq.fill(220)(rnd.nextFloat() * 12000 - 6000)
+      val v2 = IndexedSeq.fill(220)(rnd.nextFloat * 12000 - 6000)
+      println(Cosine.measure(v1,v2))
+      (Cosine.measure(v1,v2) <= 1.0) should be (true)
     }
   }
 

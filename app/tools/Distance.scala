@@ -1,5 +1,7 @@
 package tools
 
+import breeze.linalg.zipValues
+
 import scala.math.{abs, pow, sqrt}
 
 /**
@@ -8,20 +10,18 @@ import scala.math.{abs, pow, sqrt}
   */
 
 trait Distance {
-  def measure(x:IndexedSeq[Float], y:IndexedSeq[Float]) : Double
+  def measure(x:IndexedSeq[Float], y:IndexedSeq[Float]) : Float
 }
 
 object Distance {
   def magnitude(x: IndexedSeq[Float]): Double = {
-    sqrt((x).map { case (x) => pow(x, 2) }.sum)
-    //math.sqrt(x map(i => i*i) sum)
+    math.sqrt(x map(i => i*i) sum)
   }
   def ddotProduct(x: Vector[Double], y: Vector[Double]): Double = {
     (x zip y).map { case (x, y) => (y * x) }.sum
   }
   def dotProduct(x: IndexedSeq[Float], y: IndexedSeq[Float]): Float = {
-    (x zip y).map { case (x, y) => (y * x) }.sum
-    //(for((a, b) <- x zip y) yield a * b) sum
+    (for((a, b) <- x zip y) yield a * b) sum
   }
   def normalize(x:Vector[Float]):Vector[Float]={
     val m=magnitude(x)
@@ -30,34 +30,35 @@ object Distance {
 }
 
 case object Cosine extends Distance {
-  def measure(x:IndexedSeq[Float], y:IndexedSeq[Float]) : Double = {
-    println("x: "+x.size+" y: "+y.size)
-    require(x.size == y.size)
-    1-((Distance.dotProduct(x, y)) / (Distance.magnitude(x) * Distance.magnitude(y)))
+  def measure(x:IndexedSeq[Float], y:IndexedSeq[Float]) : Float = {
+    val res = 1-(Distance.dotProduct(x, y)/(Distance.magnitude(x) * Distance.magnitude(y))).toFloat
+    // normalize result:
+    res / 2
   }
+
 }
 
 case object Euclidean extends Distance {
-  def measure(x:IndexedSeq[Float], y:IndexedSeq[Float]) : Double = {
-    sqrt((x zip y).map { case (x, y) => pow(y - x, 2) }.sum)
+  def measure(x:IndexedSeq[Float], y:IndexedSeq[Float]) : Float = {
+    sqrt((x zip y).map { case (x, y) => pow(y - x, 2) }.sum).toFloat
   }
 }
 
 case object Manhattan extends Distance {
-  def measure(x:IndexedSeq[Float], y:IndexedSeq[Float]) : Double = {
+  def measure(x:IndexedSeq[Float], y:IndexedSeq[Float]) : Float = {
     (x zip y).map { case (x, y) => abs(y - x) }.sum
   }
 
 }
 
 case object LInfinityNorm extends Distance {
-  def measure(x:IndexedSeq[Float], y:IndexedSeq[Float]) : Double = {
+  def measure(x:IndexedSeq[Float], y:IndexedSeq[Float]) : Float = {
     (x zip y).map { case (x, y) => abs(y - x) }.max
   }
 }
 
 case object Hamming extends Distance {
-  def measure(x:IndexedSeq[Float], y:IndexedSeq[Float]) : Double = {
+  def measure(x:IndexedSeq[Float], y:IndexedSeq[Float]) : Float = {
     (x zip y).count { case (x, y) => (y != x) }
   }
 }
