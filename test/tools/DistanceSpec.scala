@@ -16,4 +16,14 @@ class DistanceSpec extends FlatSpec with Matchers {
     Cosine.measure(v1, v2) should be (0.0)
   }
 
+  "Cosine Measure" should "measure higher than 1.0" in {
+    val rnd = new Random(System.currentTimeMillis())
+
+    for(i <- 0 until 100) {
+      val v1 = IndexedSeq.fill(220)(rnd.nextFloat)
+      val v2 = IndexedSeq.fill(220)(rnd.nextFloat)
+      (Cosine.measure(v1,v2) <= 1.000000) should be (true)
+    }
+  }
+
 }
