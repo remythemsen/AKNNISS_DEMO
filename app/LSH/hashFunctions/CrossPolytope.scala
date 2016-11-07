@@ -65,8 +65,10 @@ class CrossPolytope(k: Int, rndf:() => Random) extends HashFunction(k, rndf) {
     var max = 0.0
     var indexOfMax = 0
     for(i<-0 until y.size){
-      if(Math.abs(y(i)) > max) max = y(i)
-      indexOfMax = i
+      if(Math.abs(y(i)) > max){
+        max = y(i)
+        indexOfMax = i
+      }
     }
 
     if(max > 0) 2*indexOfMax -1
