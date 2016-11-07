@@ -1,8 +1,6 @@
 package LSH.hashFunctions
 
 import tools.Distance
-
-import scala.collection.mutable.ArrayBuffer
 import scala.util.Random
 
 class Hyperplane(k:Int, rndf:() => Random) extends HashFunction(k, rndf) {

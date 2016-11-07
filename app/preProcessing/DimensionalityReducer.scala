@@ -6,9 +6,6 @@ import tools.Distance
 import scala.collection.mutable.ArrayBuffer
 import scala.math.{pow, sqrt}
 
-/**
-  * Created by remeeh on 10/2/16.
-  */
 object DimensionalityReducer{
   // Principal Component Analysis
   def getNewVector(x:Vector[Double],A: DenseMatrix[Double]):Vector[Double] = {

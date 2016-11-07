@@ -14,12 +14,14 @@ trait Distance {
 object Distance {
   def magnitude(x: IndexedSeq[Float]): Double = {
     sqrt((x).map { case (x) => pow(x, 2) }.sum)
+    //math.sqrt(x map(i => i*i) sum)
   }
   def ddotProduct(x: Vector[Double], y: Vector[Double]): Double = {
     (x zip y).map { case (x, y) => (y * x) }.sum
   }
   def dotProduct(x: IndexedSeq[Float], y: IndexedSeq[Float]): Float = {
     (x zip y).map { case (x, y) => (y * x) }.sum
+    //(for((a, b) <- x zip y) yield a * b) sum
   }
   def normalize(x:Vector[Float]):Vector[Float]={
     val m=magnitude(x)
@@ -29,6 +31,8 @@ object Distance {
 
 case object Cosine extends Distance {
   def measure(x:IndexedSeq[Float], y:IndexedSeq[Float]) : Double = {
+    println("x: "+x.size+" y: "+y.size)
+    require(x.size == y.size)
     1-((Distance.dotProduct(x, y)) / (Distance.magnitude(x) * Distance.magnitude(y)))
   }
 }
