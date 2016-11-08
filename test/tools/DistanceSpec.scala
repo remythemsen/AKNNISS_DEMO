@@ -1,7 +1,5 @@
 package tools
 
-import breeze.linalg.functions.cosineDistance
-
 import scala.util.Random
 import org.scalatest._
 

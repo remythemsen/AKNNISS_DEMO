@@ -1,13 +1,22 @@
 package main
 
 import java.io.{File, FileOutputStream, ObjectOutputStream}
-import scala.pickling.Defaults._
+
 import IO.Parser
 import LSH.hashFunctions._
 import LSH.structures.{HashTable, LSHStructure}
+import akka.actor.{Actor, ActorSystem, Props}
+import akka.actor.Actor.Receive
+import akka.actor.Status.Status
+import akka.pattern.{ask, pipe}
+import akka.util.Timeout
 
-
+import scala.concurrent.duration._
+import scala.concurrent.{Await, Future}
 import scala.util.Random
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.util.{Failure, Success}
+import scala.collection.immutable.IndexedSeq
 
 /**
   * Created by remeeh on 9/26/16.
@@ -46,18 +55,23 @@ object Build {
         val seed:Long = System.currentTimeMillis()
         val rnd:Random = new Random(seed)
 
+        val system = ActorSystem("LSHStructureBuilder")
         // Building the structure
-        val lshStructure = new LSHStructure(for {
-            i <- 0 until config.tables
-            parser <- List(new Parser(new File(config.data.getAbsolutePath)))
-            table <- {
-              val t = new HashTable(() => new Hyperplane(config.functions, () => new Random(rnd.nextLong())))
-              for (j <- 0 until parser.size) {
-                t += parser.next
+        val lshStructure = new LSHStructure(
+          Await.result(Future.sequence {
+            for {
+              i <- 0 until config.tables
+              parser <- List(new Parser(new File(config.data.getAbsolutePath)))
+              table <- {
+                implicit val timeout = Timeout(5.hours)
+                val c = system.actorOf(Props(new TableBuilder()))
+                val r = c ? BuildTable(() => new Hyperplane(config.functions, () => new Random(rnd.nextLong())), parser, 10000000)
+                List(r.asInstanceOf[Future[Status]])
               }
-              List(t)
-            }
-          } yield table)
+            } yield table
+            }, Timeout(5.hours).duration))//.asInstanceOf[IndexedSeq[HashTable]])
+
+          //val sres = Await.result(Future.sequence(table), Timeout(5.hours).duration))
 
         // Save LSHStructure to file.
         val dir:String = config.outDir.concat("/")
@@ -81,6 +95,19 @@ object Build {
     }
   }
 }
+class TableBuilder extends Actor {
+  def receive: Receive = {
+    case BuildTable(hf, parser, timeOut) => {
+      val t = new HashTable(hf)
+      for (j <- 0 until parser.size) {
+        println("number:"+j)
+        t += parser.next
+      }
+      sender ! List(t)
+    }
+  }
+}
+case class BuildTable(hf:() => HashFunction, parser:Parser, timeOut:Long)
 case class ConfigBuild(data: File = new File("."), outDir: String = ".", functions:Int = 12, tables:Int = 4, hashFunction:String = "Hyperplane")
 
 

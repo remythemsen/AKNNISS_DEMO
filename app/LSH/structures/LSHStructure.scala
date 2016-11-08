@@ -1,5 +1,6 @@
 package LSH.structures
 
+import akka.actor.Status.{Status, Success}
 import tools.Distance
 
 /**
@@ -7,8 +8,8 @@ import tools.Distance
   */
 
 @SerialVersionUID(100L)
-class LSHStructure(hts:IndexedSeq[HashTable]) extends Serializable {
-  val hashTables = hts
+class LSHStructure(hts:IndexedSeq[Status]) extends Serializable {
+  val hashTables = hts.asInstanceOf[collection.immutable.IndexedSeq[HashTable]]
 
   // Building lookup map
   private val items = this.hashTables.head.table.valuesIterator.flatten.toList
