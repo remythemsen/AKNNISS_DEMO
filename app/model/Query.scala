@@ -6,7 +6,7 @@ import tools.Cosine
 
 object Query {
   // Load LSHStructure
-  val ois = new ObjectInputStream(new FileInputStream("out/structures/Hyperplane_1_1_random.lshstructure"))
+  val ois = new ObjectInputStream(new FileInputStream("out/structures/Hyperplane_8_4_random.lshstructure"))
   println("Loading started!")
   val lshs: LSHStructure = ois.readObject.asInstanceOf[LSHStructure]
   ois.close()

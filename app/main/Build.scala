@@ -66,13 +66,12 @@ object Build {
                 implicit val timeout = Timeout(5.hours)
                 val c = system.actorOf(Props(new TableBuilder()))
                 val r = c ? BuildTable(() => new Hyperplane(config.functions, () => new Random(rnd.nextLong())), parser, 10000000)
-                List(r.asInstanceOf[Future[Status]])
+                List(r.asInstanceOf[Future[HashTable]])
               }
             } yield table
-            }, Timeout(5.hours).duration))//.asInstanceOf[IndexedSeq[HashTable]])
+            }, Timeout(5.hours).duration))
 
-          //val sres = Await.result(Future.sequence(table), Timeout(5.hours).duration))
-
+        system.terminate()
         // Save LSHStructure to file.
         val dir:String = config.outDir.concat("/")
           // constructing filename
@@ -103,7 +102,7 @@ class TableBuilder extends Actor {
         println("number:"+j)
         t += parser.next
       }
-      sender ! List(t)
+      sender ! t
     }
   }
 }
