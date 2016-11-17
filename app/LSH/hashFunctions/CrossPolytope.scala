@@ -41,7 +41,7 @@ class CrossPolytope(k: Int, rndf:() => Random) extends HashFunction(k, rndf) {
     }
   }
 
-  def MatrixVectorProduct(A:Array[Array[Float]],x:IndexedSeq[Float]):IndexedSeq[Float]={
+  def MatrixVectorProduct(A:Array[Array[Float]],x:Array[Float]):Array[Float]={
     // TODO Chris & Rox, please double check the double to float conversion here
     //A*xw
     val buffer= new ArrayBuffer[Float]
@@ -51,14 +51,14 @@ class CrossPolytope(k: Int, rndf:() => Random) extends HashFunction(k, rndf) {
       for(j<-0 until x.size){
         b+=A(i)(j)
       }
-      buffer+=Distance.dotProduct(b.toIndexedSeq,x)
+      buffer+=Distance.dotProduct(b.toArray,x)
     }
     // return the new IndexedSeq with reduced dimensions
-    buffer.toIndexedSeq
+    buffer.toArray
   }
 
   // compute pseudorandom rotation: Fast Hadamard Transform
-  def computeHash(x: IndexedSeq[Float]): Int = {
+  def computeHash(x: Array[Float]): Int = {
     // y = HD1HD2HD3x // matrix multiplication
     val y = pseudoRandomRotation(x)
 
@@ -83,11 +83,11 @@ class CrossPolytope(k: Int, rndf:() => Random) extends HashFunction(k, rndf) {
   val H = Array.ofDim[Float](220, 220)
   generateHadamard(220, H)
 
-  def pseudoRandomRotation(x: IndexedSeq[Float]): IndexedSeq[Float] ={
+  def pseudoRandomRotation(x: Array[Float]): Array[Float] ={
     MatrixVectorProduct(H,MatrixVectorProduct(D3,MatrixVectorProduct(H,MatrixVectorProduct(D2,MatrixVectorProduct(H,MatrixVectorProduct(D1,x))))))
   }
 
-  def apply(x: IndexedSeq[Float]): String = {
+  def apply(x: Array[Float]): String = {
     computeHash(x).toString
   }
 

@@ -11,10 +11,10 @@ import scala.concurrent.ExecutionContext
 
 case class FillTable(parser:Parser)
 case object GetStatus
-case class Query(q:IndexedSeq[Float])
+case class Query(q:Array[Float])
 case class SaveToDisk(dir:String)
 
-case class QueryResult(items:List[(String, IndexedSeq[Float])])
+case class QueryResult(items:List[(String, Array[Float])])
 
 trait Status
 case object Ready extends Status

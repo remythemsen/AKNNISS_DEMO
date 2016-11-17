@@ -6,8 +6,6 @@ import IO.Parser
 import LSH.hashFunctions._
 import LSH.structures.{HashTable, LSHStructure}
 import akka.actor.{Actor, ActorSystem, Props}
-import akka.actor.Actor.Receive
-import akka.actor.Status.Status
 import akka.pattern.{ask, pipe}
 import akka.util.Timeout
 
@@ -15,8 +13,6 @@ import scala.concurrent.duration._
 import scala.concurrent.{Await, Future}
 import scala.util.Random
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.util.{Failure, Success}
-import scala.collection.immutable.IndexedSeq
 
 /**
   * Created by remeeh on 9/26/16.

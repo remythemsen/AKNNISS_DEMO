@@ -21,7 +21,7 @@ class LSHS {
   val data = "data/descriptors-decaf-random-sample-reduced.data"
   val rnd = new Random(System.currentTimeMillis())
   val hf = () => new Hyperplane(functions, () => new Random(rnd.nextLong()))
-  val range = 0.4
+  val range = 0.3
   val dist = Cosine
 
   // Initializing the tables...
@@ -77,7 +77,7 @@ class LSHS {
 
   // Make lookup table
   val parser = new Parser(new File(data))
-  val lookupMap:Map[String, IndexedSeq[Float]] = {
+  val lookupMap:Map[String, Array[Float]] = {
     for {
       i <- 0 until parser.size
       r <- {
@@ -89,11 +89,11 @@ class LSHS {
 
   println("All is done!")
 
-  def findVectorById(id:String):IndexedSeq[Float] = {
+  def findVectorById(id:String):Array[Float] = {
     lookupMap.get(id).head
   }
 
-  def getResults(id:String):(String, List[((String, IndexedSeq[Float]), Float)]) = {
+  def getResults(id:String):(String, List[((String, Array[Float]), Float)]) = {
     val fVector = findVectorById(id)
 
     val tres = time {
@@ -104,7 +104,7 @@ class LSHS {
     (tres._2, res2.toList)
   }
 
-  def getCandidateSet(fVector:IndexedSeq[Float], range:Double) : IndexedSeq[(String, IndexedSeq[Float])] = {
+  def getCandidateSet(fVector:Array[Float], range:Double) : IndexedSeq[(String, Array[Float])] = {
     val candidates = {
       Await.result(Future.sequence {
         for {

@@ -30,7 +30,7 @@ class Parser(data:File) extends Serializable  {
 
   def hasNext : Boolean = iterator.hasNext
 
-  def next : (String, IndexedSeq[Float]) = {
+  def next : (String, Array[Float]) = {
     val set = iterator.take(2).toList
     (set(0).toString.substring(49), set(1).toString .split(" ").map(x=>x.toFloat))
   }
