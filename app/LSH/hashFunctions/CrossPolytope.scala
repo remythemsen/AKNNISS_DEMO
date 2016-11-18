@@ -13,11 +13,7 @@ class CrossPolytope(k: Int, rndf:() => Random) extends HashFunction(k, rndf) {
   val rnd = rndf()
 
   // TODO: remove hardcoded value
-  //  val D1 = generateRDV(220, rnd.nextLong())
-  //  val D2 = generateRDV(220, rnd.nextLong())
-  //  val D3 = generateRDV(220, rnd.nextLong())
   val ds=k*3
-
 
   val diagonals=new Array[Vector[Float]](ds)
   for(i<-0 until ds){
@@ -51,10 +47,11 @@ class CrossPolytope(k: Int, rndf:() => Random) extends HashFunction(k, rndf) {
   // compute pseudorandom rotation: Fast Hadamard Transform
   def computeHash(x: IndexedSeq[Float]): Array[Int] = {
     // y = HD1HD2HD3x // matrix multiplication
-    val b=new Array[Float](x.size)
+    var b=new Array[Float](x.size)
+    println("SIZE",b.size,x.size)
     val H = hadamardTransformation(x,0,x.size-1,b)
     val arr = new Array[Int](k)
-    var index=0;
+    var index=0
     for(i<-0 until k) {
       val y = pseudoRandomRotation(H,x, index)
       var max = 0.0
@@ -83,15 +80,15 @@ class CrossPolytope(k: Int, rndf:() => Random) extends HashFunction(k, rndf) {
 
     if(high-low>0)
     {
-      val middle=(low+high)/2;
+      var middle=(low+high)/2
       //System.out.println(middle);
       var c=1;
-      for(i<-low until middle){
+      for(i<-low until middle+1){
         y(i) = a(i)+a(middle+c)
         c+=1
       }
       var m=0;
-      for(j<-middle+1 until high){
+      for(j<-middle+1 until high+1){
         y(j)= -a(j) + a(low+m)
         m+=1
       }
@@ -126,6 +123,7 @@ class CrossPolytope(k: Int, rndf:() => Random) extends HashFunction(k, rndf) {
         else{str+="00"+x(i)}
       }
     }
+    //println(str)
     str
   }
 
