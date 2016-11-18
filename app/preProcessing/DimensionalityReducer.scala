@@ -23,7 +23,7 @@ object DimensionalityReducer{
     val base2 = scala.math.log(2)
     val log2N = scala.math.log(n) / base2
     // m = new reduced dimension
-    val m=((9*epsilon*log2N).toInt) + 2
+    val m=((9*epsilon*log2N).toInt) + 38
 
     val A = DenseMatrix.rand(m, d, breeze.stats.distributions.Gaussian(0, 1))
     val M=normalizeMatrix(A)
