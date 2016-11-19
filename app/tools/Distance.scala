@@ -11,7 +11,7 @@ object Distance {
     math.sqrt(x map(i => i*i) sum)
   }
   def ddotProduct(x: Array[Double], y: Array[Double]): Double = {
-    (x zip y).map { case (x, y) => (y * x) }.sum
+    (for((a, b) <- x zip y) yield a * b) sum
   }
   def dotProduct(x: Array[Float], y: Array[Float]): Float = {
     (for((a, b) <- x zip y) yield a * b) sum

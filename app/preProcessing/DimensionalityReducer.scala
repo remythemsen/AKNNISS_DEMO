@@ -37,9 +37,11 @@ object DimensionalityReducer{
       var b:Array[Double] = new Array(x.size)
       for(j<-0 until x.size){
        b(j) = A(i,j)
+        //TODO calc dot product here
       }
        buffer(i)=Distance.ddotProduct(b,x)
     }
+
     buffer
   }
 
