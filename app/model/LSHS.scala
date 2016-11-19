@@ -16,12 +16,12 @@ import scala.concurrent.duration._
 import scala.util.Random
 
 class LSHS {
-  val functions = 9
+  val functions = 11
   val tables = 3
   val data = "data/descriptors-decaf-random-sample-reduced.data"
   val rnd = new Random(System.currentTimeMillis())
   val hf = () => new Hyperplane(functions, () => new Random(rnd.nextLong()))
-  val range = 0.3
+  val range = 1.0
   val dist = Cosine
 
   // Initializing the tables...
@@ -117,6 +117,7 @@ class LSHS {
       }, Timeout(1.minute).duration)
     }.flatMap {
       case Right(v) => v.items
+      case Left(s) => IndexedSeq.empty
     }.distinct.filter(x => dist.measure(x._2, fVector) < range)
 
     candidates

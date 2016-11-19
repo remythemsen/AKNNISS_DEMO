@@ -10,7 +10,7 @@ object Distance {
   def magnitude(x: Array[Float]): Double = {
     math.sqrt(x map(i => i*i) sum)
   }
-  def ddotProduct(x: Vector[Double], y: Vector[Double]): Double = {
+  def ddotProduct(x: Array[Double], y: Array[Double]): Double = {
     (x zip y).map { case (x, y) => (y * x) }.sum
   }
   def dotProduct(x: Array[Float], y: Array[Float]): Float = {

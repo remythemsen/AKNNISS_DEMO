@@ -50,31 +50,26 @@ object Preprocess {
         val size = Source.fromFile(config.data.getAbsolutePath).getLines().length/2
         println(size)
 
+        // IDEA: Can we have one thread reading, and one writing ?
 
-        // TODO This can be made much faster using buffer
-        Iterator
-          .continually (input2.next())
-          .takeWhile (_ => input2.nonEmpty)
-          .map(x => {
-            // case id line
-            if(x.startsWith("#")) x
-            else {
-              val sb : StringBuilder = new StringBuilder
-              val v = x.toString.split(" ").map(x=>x.toDouble).toVector
-              val newV = DimensionalityReducer.getNewVector(v, A)
-              for(d <- newV) {
-                sb ++= d.toString
-                sb ++= " "
-              }
-              sb.toString
-            }
-            // case vector line
-          })//(DimensionalityReducer.getNewVector(Vector(x.toDouble)).toString))
-          .foreach((x) => {
+        var sb = new StringBuilder
+        while(input2.hasNext) {
+          val l = input2.next
+          if(l.charAt(0).equals('#')) {
+            // Then get the ID
+            sb.append(l.substring(49)+"\n")
+          } else {
+            // Get the vector
+            sb.append(DimensionalityReducer.getNewVector(l.split(" ").map(x => x.toDouble), A)+"\n")
+
+            // Write resulting set
+            output.write(sb.toString())
+
             j+=1.0
-            println((((j/2) / size) * 100).toString.substring(0, 3)+"%")
-            output.write(x + "\n")
-          })
+            println(((j / size) * 100).toString.substring(0, 3)+"%")
+            sb = new StringBuilder
+          }
+        }
         println("Finished with "+size+" tuples")
 
       case None =>

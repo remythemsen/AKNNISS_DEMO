@@ -12,7 +12,7 @@ import scala.math.{pow, sqrt}
 
 object DimensionalityReducer{
 
-  def getNewVector(x:Vector[Double],A: DenseMatrix[Double]):Vector[Double] = {
+  def getNewVector(x:Array[Double],A: DenseMatrix[Double]):Array[Double] = {
     val y=MatrixVectorProduct(x,A)//return Reduced Vector
     y
   }
@@ -30,17 +30,17 @@ object DimensionalityReducer{
     M
   }
 
-  def MatrixVectorProduct(x:Vector[Double],A:DenseMatrix[Double]):Vector[Double]={
+  def MatrixVectorProduct(x:Array[Double],A:DenseMatrix[Double]):Array[Double]={
     //A*xw
-    val buffer= new ArrayBuffer[Double]
+    val buffer:Array[Double] = new Array(A.rows)
     for(i<-0 until A.rows){
-      val b = new ArrayBuffer[Double]
+      var b:Array[Double] = new Array(x.size)
       for(j<-0 until x.size){
-       b+=A(i,j)
+       b(j) = A(i,j)
       }
-       buffer+=Distance.ddotProduct(b.toVector,x)
+       buffer(i)=Distance.ddotProduct(b,x)
     }
-    buffer.toVector
+    buffer
   }
 
   def normalizeMatrix(A:DenseMatrix[Double]):DenseMatrix[Double]={

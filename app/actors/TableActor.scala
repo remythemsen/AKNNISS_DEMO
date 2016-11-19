@@ -4,9 +4,10 @@ import IO.Parser
 import LSH.hashFunctions.HashFunction
 import LSH.structures.HashTable
 import akka.actor.Actor
-import akka.actor.Actor.Receive
+
 import scala.concurrent._
 import ExecutionContext.Implicits.global
+import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.ExecutionContext
 
 case class FillTable(parser:Parser)
@@ -14,7 +15,7 @@ case object GetStatus
 case class Query(q:Array[Float])
 case class SaveToDisk(dir:String)
 
-case class QueryResult(items:List[(String, Array[Float])])
+case class QueryResult(items:ArrayBuffer[(String, Array[Float])])
 
 trait Status
 case object Ready extends Status
@@ -22,6 +23,7 @@ case class InProgress(progress:Int) extends Status
 case object NotReady extends Status
 
 class TableActor(hf:() => HashFunction) extends Actor {
+  // TODO Add L Tables to each Table Actor
 
   private val table = new HashTable(hf)
   private var status:Status = NotReady
