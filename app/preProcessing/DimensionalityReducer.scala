@@ -34,11 +34,11 @@ object DimensionalityReducer{
     //A*xw
     val buffer= new ArrayBuffer[Double]
     for(i<-0 until A.rows){
-      val b = new ArrayBuffer[Double]
+      var b=0.0
       for(j<-0 until x.size){
-       b+=A(i,j)
+        b+=A(i,j)*x(j)
       }
-       buffer+=Distance.ddotProduct(b.toVector,x)
+      buffer+=b
     }
     buffer.toVector
   }
