@@ -12,12 +12,12 @@ import scala.math.{pow, sqrt}
 
 object DimensionalityReducer{
 
-  def getNewVector(x:Array[Double],A: DenseMatrix[Double]):Array[Double] = {
+  def getNewVector(x:Array[Float],A: DenseMatrix[Float]):Array[Float] = {
     val y=MatrixVectorProduct(x,A)//return Reduced Vector
     y
   }
 
-  def getRandMatrix(n:Int, d:Int): DenseMatrix[Double] ={
+  def getRandMatrix(n:Int, d:Int): DenseMatrix[Float] ={
 
     val epsilon=1// 0 <= epsilon <= 1
     val base2 = scala.math.log(2)
@@ -30,37 +30,37 @@ object DimensionalityReducer{
     M
   }
 
-  def MatrixVectorProduct(x:Array[Double],A:DenseMatrix[Double]):Array[Double]={
+  def MatrixVectorProduct(x:Array[Float],A:DenseMatrix[Float]):Array[Float]={
     //A*xw
-    val buffer:Array[Double] = new Array(A.rows)
-    for(i<-0 until A.rows){
-      var b:Array[Double] = new Array(x.size)
-      for(j<-0 until x.size){
-       b(j) = A(i,j)
-        //TODO calc dot product here
-      }
-       buffer(i)=Distance.ddotProduct(b,x)
-    }
+    val reduced:Array[Float] = new Array(A.rows)
+    // Reusable array
+    val b:Array[Float] = new Array(x.length)
 
-    buffer
+    for(i<-0 until A.rows){
+      for(j<-x.indices){
+       b(j) = A(i,j) // filling b with new values
+      }
+      reduced(i) = Distance.parDotProduct(b,x)
+    }
+    reduced
   }
 
-  def normalizeMatrix(A:DenseMatrix[Double]):DenseMatrix[Double]={
-    val buffer= new ArrayBuffer[Double]
+  def normalizeMatrix(A:DenseMatrix[Double]):DenseMatrix[Float]={
+    val buffer= new ArrayBuffer[Float]
+
+    val B:DenseMatrix[Float] = DenseMatrix.zeros(A.rows, A.cols)
 
     for(i<-0 until A.rows){
       val b = new ArrayBuffer[Double]
       for(j<-0 until A.cols){
-        b+=A(i,j)
+        b+=A(i,j) // Note this conversion
       }
-
-      val l= sqrt((b).map { case (x) => pow(x, 2) }.sum)
+      val l= sqrt(b.map { case (x) => pow(x, 2) }.sum)
       for(c <-0 until A.cols){
-        A(i,c)=b(c)/l
+        B(i,c) = (b(c)/l).toFloat
       }
     }
-
-    A
+    B
   }
 
 }

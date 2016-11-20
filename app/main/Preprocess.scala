@@ -32,7 +32,7 @@ object Preprocess {
     // parser.parse returns Option[C]
     parser.parse(args, ConfigPreprocessing()) match {
       case Some(config) =>
-        val A:DenseMatrix[Double]= DimensionalityReducer.getRandMatrix(20000000,4096);
+        val A:DenseMatrix[Float]= DimensionalityReducer.getRandMatrix(20000000,4096);
 
         // Reducing and saving
         val input = new BufferedInputStream( new FileInputStream( config.data ) )
@@ -60,7 +60,11 @@ object Preprocess {
             sb.append(l.substring(49)+"\n")
           } else {
             // Get the vector
-            sb.append(DimensionalityReducer.getNewVector(l.split(" ").map(x => x.toDouble), A)+"\n")
+            val v = DimensionalityReducer.getNewVector(l.split(" ").map(x => x.toFloat), A)
+            for(i <- v) {
+              sb.append(i + " ")
+            }
+            sb.append("\n")
 
             // Write resulting set
             output.write(sb.toString())
