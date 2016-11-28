@@ -17,7 +17,7 @@ import scala.util.Random
 
 class LSHS {
   val functions = 11
-  val tables = 3
+  val tables = 1
   val data = "data/descriptors-decaf-random-sample-reduced.data"
   val rnd = new Random(System.currentTimeMillis())
   val hf = () => new Hyperplane(functions, () => new Random(rnd.nextLong()))

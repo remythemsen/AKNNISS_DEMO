@@ -47,6 +47,8 @@ object Preprocess {
         val input2 = Source.fromFile(config.data.getAbsoluteFile).getLines()
 
         var j = 0.0
+        var jph = j
+
         val size = Source.fromFile(config.data.getAbsolutePath).getLines().length/2
         println(size)
 
@@ -57,7 +59,7 @@ object Preprocess {
           val l = input2.next
           if(l.charAt(0).equals('#')) {
             // Then get the ID
-            sb.append(l.substring(49)+"\n")
+            sb.append(l.substring(49)+" ")
           } else {
             // Get the vector
             val v = DimensionalityReducer.getNewVector(l.split(" ").map(x => x.toFloat), A)
@@ -70,7 +72,11 @@ object Preprocess {
             output.write(sb.toString())
 
             j+=1.0
-            println(((j / size) * 100).toString.substring(0, 3)+"%")
+            if(j >= jph) {
+              jph = j+20
+              println(v.length)
+              println(((j / size) * 100).toInt.toString +"%")
+            }
             sb = new StringBuilder
           }
         }
