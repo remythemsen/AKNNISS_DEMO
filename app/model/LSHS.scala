@@ -1,132 +1,115 @@
 package model
 
-import java.io.File
+import LSH.structures.LSHStructure
+import akka.actor._
+import utils.tools.actormessages._
+import utils.tools.actormessages.Query
+import utils.tools._
 
-import IO.Parser
-import LSH.hashFunctions.Hyperplane
-import actors._
-import akka.actor.{ActorSystem, Props}
+import akka.util.Timeout
+import scala.io.Source
+import scala.util.Random
+import akka.actor._
 import akka.pattern.ask
 import akka.util.Timeout
-import tools.Cosine
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.{Await, Future}
+import scala.collection.mutable.ArrayBuffer
+import scala.concurrent.{Await, ExecutionContext, Future}
 import scala.concurrent.duration._
-import scala.util.Random
 
-class LSHS {
-  val functions = 11
-  val tables = 1
-  val data = "data/descriptors-decaf-random-sample-reduced.data"
+object LSHS {
+  // Get References to tablehandler nodes
+  val ips = Source.fromFile("data/ips").getLines().next.split(" ") // Ip's of tablehandlers
+
+  // table handler port
+  val tbp = 2552
+
+  val thsn = "TableHandlerSystem" // table handler Actor systemname
+  val systemName = "akka.tcp://"+thsn+"@"
+  val actorPath = "/user/TableHandler"
+
+  val tablehandlers = for {
+    ip <- ips
+    tableHandlerAddress <- {
+      Array(systemName+ip+":"+tbp+actorPath)
+    }
+  } yield tableHandlerAddress
+
+
+  // TODO Better random seed ??
   val rnd = new Random(System.currentTimeMillis())
-  val hf = () => new Hyperplane(functions, () => new Random(rnd.nextLong()))
-  val range = 1.0
-  val dist = Cosine
 
-  // Initializing the tables...
-  val system = ActorSystem("LSHStructureBuilder")
-  implicit val timeout = Timeout(1.hour)
+  // make the tester system
+  val system = ActorSystem("DemoSystem")
 
-  // Building the structure
-  val lshStructure =
-      for {
-        i <- 0 until tables
-        parser <- List(new Parser(new File(data)))
-        actor <- {
-          implicit val timeout = Timeout(5.hours)
-          val a = system.actorOf(Props(new TableActor(hf)))
-          a ! FillTable(parser)
-          List(a)
-        }
-      } yield actor
+  // Adding the demo  actor!
+  val demo = system.actorOf(Props(new Demo(tablehandlers, rnd.nextLong)), name = "Demo")  // the local actor
 
-  var condition = false
+  // Get the structure Ready
+  demo ! InitializeStructure
 
-  while(!condition) {
-    val statuses:IndexedSeq[Status] = {
-      Await.result(Future.sequence {
-        for {
-          actor <- lshStructure
-          status <- {
-            val s = (actor ? GetStatus).asInstanceOf[Future[Status]]
-            List(s)
-          }
-        } yield status.asInstanceOf[Future[Status]]
-      }, Timeout(1.minute).duration)
-    }
-
-    condition = true
-    for(s <- statuses) {
-      val msg = s match {
-        case NotReady => {
-          condition = false
-          "Not Initialized"
-        }
-        case Ready => "Ready"
-        case InProgress(p) => {
-          condition = false
-          p.toString + "% Done"
-        }
-      }
-      print(msg + "\t")
-    }
-    println("")
-    Thread.sleep(200)
-  }
-
-  // Make lookup table
-  val parser = new Parser(new File(data))
-  val lookupMap:Map[String, Array[Float]] = {
-    for {
-      i <- 0 until parser.size
-      r <- {
-        val t = parser.next
-        List(t._1 -> t._2)
-      }
-    } yield r
-  }.toMap
-
-  println("All is done!")
-
-  def findVectorById(id:String):Array[Float] = {
-    lookupMap.get(id).head
-  }
-
-  def getResults(id:String):(String, List[((String, Array[Float]), Float)]) = {
-    val fVector = findVectorById(id)
-
-    val tres = time {
-      getCandidateSet(fVector, range)
-    }
-
-    val res2 = tres._1.zip(tres._1.map(x => Cosine.measure(fVector, x._2))).sortBy(_._2)
-    (tres._2, res2.toList)
-  }
-
-  def getCandidateSet(fVector:Array[Float], range:Double) : IndexedSeq[(String, Array[Float])] = {
-    val candidates = {
-      Await.result(Future.sequence {
-        for {
-          actor <- lshStructure
-          queries <- {
-            val r = (actor ? actors.Query(fVector)).asInstanceOf[Future[Either[String, QueryResult]]]
-            List(r)
-          }
-        } yield queries.asInstanceOf[Future[Either[String, QueryResult]]]
-      }, Timeout(1.minute).duration)
-    }.flatMap {
-      case Right(v) => v.items
-      case Left(s) => IndexedSeq.empty
-    }.distinct.filter(x => dist.measure(x._2, fVector) < range)
-
-    candidates
-  }
-
-  def time[R](block: => R) = {
-    val t0 = System.currentTimeMillis()
-    val result = block    // call-by-name
-    val t1 = System.currentTimeMillis()
-    (result, (t1 - t0) + "ms")
+  def makeQuery(qp:(Int, Array[Float])):ArrayBuffer[(Int, Float)] = {
+    //ArrayBuffer((1214, 0.21f), (1239, 0.20f), (1224, 0.11f))
+    implicit val timeout = Timeout(5 hours)
+    val fut = this.demo ? Query(qp, 1.0, "Hyperplane", Cosine, 30, 2)
+    Await.result(fut, 1 hour).asInstanceOf[ArrayBuffer[(Int, Float)]]
   }
 }
+
+class Demo(tablehandlers:Array[String], seed:Long) extends Actor {
+  val rnd = new Random(seed)
+  var qSender:ActorRef = _
+
+  // The Structure reference to table handlers
+  val lshStructure:ActorRef = context.system.actorOf(Props(
+    new LSHStructure(for {
+      tableHandlerAddress <- tablehandlers
+      tableHandler <- {
+        Seq(context.actorSelection(tableHandlerAddress))
+      }
+    } yield tableHandler, context.system, context.self, rnd.nextLong)), name = "LSHStructure")
+
+  var lshStructureReady = false
+
+  val timer = new Timer
+
+  def receive = {
+
+    // Starting or resetting the Structure
+    case InitializeStructure => {
+      this.lshStructureReady = false
+      // Inform the LSHStructure to initialize it's tablehandlers
+      println("Initializing or Re-initializing Structure ")
+      this.lshStructure ! InitializeTableHandlers(
+        "Hyperplane",
+        4, // Only one table per Handler
+        8,
+        256,
+        "data/descriptors-decaf-random-sample-reduced.data",
+        30
+      )
+
+    }
+
+    case Ready => {
+      println("status received: Structure is Ready")
+      this.lshStructureReady = true
+    }
+
+    case QueryResult(res, numOfAccessedObjects) => {
+      this.sender ! res
+    }
+
+    case Query(qp, range, pbsch, measure, knn, numOfProbs) => {
+      println("QUERY RECIEVED!?")
+      if(this.lshStructureReady) {
+        this.qSender = context.sender()
+        this.lshStructure ! Query(qp, range, pbsch, measure, knn, numOfProbs)
+      }
+      else {
+        println("Structure was not ready yet!")
+      }
+    }
+  }
+}
+
