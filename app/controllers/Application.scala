@@ -1,6 +1,8 @@
 package controllers
 import java.io.File
 
+import akka.actor.ActorSystem
+import com.google.inject.Inject
 import utils.IO.ReducedFileParser
 import play.api.mvc._
 import model._
@@ -9,8 +11,8 @@ import scala.collection.immutable.HashMap
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 
-class Application extends Controller {
-  val lshs = LSHS
+class Application @Inject() (system: ActorSystem)  extends Controller {
+  val lshs = new LSHS(system)
 
   println("building lookup table...")
   val lookupTable:HashMap[Int, Array[Float]] = {
@@ -23,6 +25,8 @@ class Application extends Controller {
   }
 
   println("lookup table is done..")
+
+  lshs.getStarted
 
   // Initial Index Page
   def index = Action {

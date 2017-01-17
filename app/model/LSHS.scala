@@ -17,7 +17,7 @@ import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.{Await, ExecutionContext, Future}
 import scala.concurrent.duration._
 
-object LSHS {
+class LSHS(system:ActorSystem) {
   // Get References to tablehandler nodes
   val ips = Source.fromFile("data/ips").getLines().next.split(" ") // Ip's of tablehandlers
 
@@ -40,19 +40,21 @@ object LSHS {
   val rnd = new Random(System.currentTimeMillis())
 
   // make the tester system
-  val system = ActorSystem("DemoSystem")
-
   // Adding the demo  actor!
   val demo = system.actorOf(Props(new Demo(tablehandlers, rnd.nextLong)), name = "Demo")  // the local actor
 
-  // Get the structure Ready
-  demo ! InitializeStructure
+  def getStarted = {
+    // Get the structure Ready
+    demo ! InitializeStructure
+  }
 
   def makeQuery(qp:(Int, Array[Float])):ArrayBuffer[(Int, Float)] = {
     //ArrayBuffer((1214, 0.21f), (1239, 0.20f), (1224, 0.11f))
     implicit val timeout = Timeout(5 hours)
     val fut = this.demo ? Query(qp, 1.0, "Hyperplane", Cosine, 30, 2)
-    Await.result(fut, 1 hour).asInstanceOf[ArrayBuffer[(Int, Float)]]
+    val res = Await.result(fut, 1 hour).asInstanceOf[ArrayBuffer[(Int, Float)]]
+    println("result recieved")
+    res
   }
 }
 
@@ -82,10 +84,10 @@ class Demo(tablehandlers:Array[String], seed:Long) extends Actor {
       println("Initializing or Re-initializing Structure ")
       this.lshStructure ! InitializeTableHandlers(
         "Hyperplane",
-        4, // Only one table per Handler
-        8,
+        2, // Only one table per Handler
+        10,
         256,
-        "data/descriptors-decaf-random-sample-reduced.data",
+        "data/100k_direct_sample_norm.data",
         30
       )
 
@@ -97,7 +99,8 @@ class Demo(tablehandlers:Array[String], seed:Long) extends Actor {
     }
 
     case QueryResult(res, numOfAccessedObjects) => {
-      this.sender ! res
+      println("LSHS returning qresult")
+      this.qSender ! res
     }
 
     case Query(qp, range, pbsch, measure, knn, numOfProbs) => {

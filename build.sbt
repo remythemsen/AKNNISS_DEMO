@@ -42,8 +42,10 @@ maintainer := "Remy Themsen <remt@itu.dk>"
 
 dockerRepository := Some("remeeh")
 
-dockerExposedPorts := Seq(9000)
+dockerExposedPorts := Seq(9000,9090)
 
-dockerBaseImage := "java"
+routesGenerator := InjectedRoutesGenerator
+
+//dockerBaseImage := "java"
 
 lazy val `aknniss_demo` = (project in file(".")).enablePlugins(PlayScala, JavaAppPackaging)
