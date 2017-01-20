@@ -48,13 +48,12 @@ class LSHS(system:ActorSystem) {
     demo ! InitializeStructure
   }
 
-  def makeQuery(qp:(Int, Array[Float])):ArrayBuffer[(Int, Float)] = {
+  def makeQuery(qp:(Int, Array[Float])):(ArrayBuffer[(Int, Float)], Int, Double) = {
     //ArrayBuffer((1214, 0.21f), (1239, 0.20f), (1224, 0.11f))
     implicit val timeout = Timeout(5 hours)
     val fut = this.demo ? Query(qp, 1.0, "Hyperplane", Cosine, 30, 2)
-    val res = Await.result(fut, 1 hour).asInstanceOf[ArrayBuffer[(Int, Float)]]
-    println("result recieved")
-    res
+    val res = Await.result(fut, 1 hour).asInstanceOf[(ArrayBuffer[(Int, Float)], Double)]
+    (res._1, qp._1, res._2)
   }
 }
 
@@ -84,29 +83,29 @@ class Demo(tablehandlers:Array[String], seed:Long) extends Actor {
       println("Initializing or Re-initializing Structure ")
       this.lshStructure ! InitializeTableHandlers(
         "Hyperplane",
-        2, // Only one table per Handler
-        10,
+        4, // Only one table per Handler
+        11,
         256,
         "data/100k_direct_sample_norm.data",
         30
       )
-
     }
 
     case Ready => {
-      println("status received: Structure is Ready")
+      println("status received: Structure was Ready in "+timer.check()+" time")
       this.lshStructureReady = true
     }
 
     case QueryResult(res, numOfAccessedObjects) => {
-      println("LSHS returning qresult")
-      this.qSender ! res
+      val tres = timer.check()
+      println("LSHS returning qresult in "+tres+ " time")
+      this.qSender ! (res, tres)
     }
 
     case Query(qp, range, pbsch, measure, knn, numOfProbs) => {
-      println("QUERY RECIEVED!?")
       if(this.lshStructureReady) {
         this.qSender = context.sender()
+        timer.play()
         this.lshStructure ! Query(qp, range, pbsch, measure, knn, numOfProbs)
       }
       else {

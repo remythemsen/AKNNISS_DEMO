@@ -12,6 +12,14 @@ import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 
 class Application @Inject() (system: ActorSystem)  extends Controller {
+  println("     ___    __ __ _   ___   ________________")
+  println("   /   |  / //_// | / / | / /  _/ ___/ ___/  ")
+  println("  / /| | / ,<  /  |/ /  |/ // / \\__ \\\\__ \\   ")
+  println(" / ___ |/ /| |/ /|  / /|  // / ___/ /__/ /   ")
+  println("/_/  |_/_/ |_/_/ |_/_/ |_/___//____/____/    ")
+  println("\nAproximate K-Nearest Neighbor Image Similarity Search")
+
+
   val lshs = new LSHS(system)
 
   println("building lookup table...")
@@ -36,8 +44,8 @@ class Application @Inject() (system: ActorSystem)  extends Controller {
 
   // Query Request
   def query(pictureId:Int) = Action {
-    val res:ArrayBuffer[(Int, Float)] = lshs.makeQuery((pictureId, lookupTable(pictureId)))
-    Ok(views.html.query(res.map(x => (addZeroes(x._1), x._2))))
+    val res:(ArrayBuffer[(Int, Float)], Int, Double) = lshs.makeQuery((pictureId, lookupTable(pictureId)))
+    Ok(views.html.query((res._1.map(x => (addZeroes(x._1), x._2)),addZeroes(res._2), res._3)))
   }
   def addZeroes(id:Int):String = {
     val zeroC = 10 - id.toString.length

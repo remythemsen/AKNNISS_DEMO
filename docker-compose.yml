@@ -10,6 +10,16 @@ services:
     volumes:
      - ./data:/opt/docker/data
 
+  tablehandler3:
+    image: remeeh/tablehandler:1.0
+    volumes:
+     - ./data:/opt/docker/data
+
+  tablehandler4:
+    image: remeeh/tablehandler:1.0
+    volumes:
+     - ./data:/opt/docker/data
+
   demo:
     ports:
      - "9000:9000"
@@ -19,3 +29,5 @@ services:
     links:
     - tablehandler1:tablehandler1
     - tablehandler2:tablehandler2
+    - tablehandler3:tablehandler3
+    - tablehandler4:tablehandler4
